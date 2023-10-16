@@ -54,4 +54,42 @@ impl Storage {
             entries
         }
     }
+
+    pub fn stop(&self, maybe_id: Option<String>) -> Option<Entry> {
+        let storage_path = self.storage_path();
+
+        let mut entries = self.list_entries(None);
+        let mut stopped_entry: Option<Entry> = None;
+
+        if maybe_id.is_none() {
+            let mut entry = entries.pop().expect("No entry to stop");
+
+            if entry.action == crate::entry::Action::Stop {
+                panic!("No entry to stop");
+            }
+
+            entry.stop();
+
+            stopped_entry = Some(entry.clone());
+        } else {
+            let id = maybe_id.clone().unwrap();
+            for entry in entries.iter_mut() {
+                if entry.id == id {
+                    if entry.action == crate::entry::Action::Stop {
+                        panic!("No entry to stop");
+                    }
+
+                    entry.stop();
+                    stopped_entry = Some(entry.clone());
+                }
+            }
+        }
+
+        entries.push(stopped_entry.clone().unwrap());
+
+        let entries_json = serde_json::to_string_pretty(&entries).unwrap();
+        std::fs::write(&storage_path, entries_json).unwrap();
+
+        stopped_entry
+    }
 }

@@ -4,14 +4,17 @@ use structopt::StructOpt;
 enum Cli {
     List(list::Cmd),
     Start(start::Cmd),
-    Stop,
-    Report,
+    Stop(stop::Cmd),
+    Report(report::Cmd),
+    Path,
 }
 
 mod entry;
 mod list;
 mod start;
+mod stop;
 mod storage;
+mod report;
 
 fn main() {
     if let Err(e) = do_main() {
@@ -28,16 +31,19 @@ fn do_main() -> Result<(), Box<dyn std::error::Error>> {
 
     match args {
         Cli::Start(cmd) => {
-            cmd.run();
+            cmd.run(&storage);
         }
-        Cli::Stop => {
-            println!("Stopping...");
+        Cli::Stop(cmd) => {
+            cmd.run(&storage);
         }
-        Cli::Report => {
-            println!("Reporting...");
+        Cli::Report(cmd) => {
+            cmd.run(&storage);
         }
         Cli::List(list) => {
-            list.run();
+            list.run(&storage);
+        },
+        Cli::Path => {
+            println!("{}", storage.storage_path().display());
         }
     }
 

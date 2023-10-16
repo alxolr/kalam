@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum Action {
     Start,
     Stop,
@@ -32,5 +32,14 @@ impl Entry {
     pub fn stop(&mut self) {
         self.action = Action::Stop;
         self.updated_at = chrono::Local::now().to_rfc3339();
+    }
+
+    pub fn duration_hours(&self) -> f64 {
+        let start = chrono::DateTime::parse_from_rfc3339(&self.created_at).unwrap();
+        let stop = chrono::DateTime::parse_from_rfc3339(&self.updated_at).unwrap();
+
+        let duration = stop - start;
+
+        duration.num_seconds() as f64 / 60.0 / 60.0
     }
 }
