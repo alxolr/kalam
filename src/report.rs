@@ -1,3 +1,5 @@
+use std::{collections::HashSet, f32::consts::E};
+
 use structopt::StructOpt;
 
 use crate::{entry::Action, storage::Storage};
@@ -30,19 +32,38 @@ impl Cmd {
             _ => entries,
         };
 
+        let projects = entries
+            .iter()
+            .map(|entry| entry.project.clone())
+            .collect::<HashSet<String>>();
+
         let mut total = 0.0;
 
-        for entry in entries {
-            let duration = entry.duration_hours();
+        for project in projects {
+            let project_entries = entries
+                .iter()
+                .filter(|entry| entry.project == project)
+                .collect::<Vec<&crate::entry::Entry>>();
 
-            total += duration;
+            let project_total = project_entries
+                .iter()
+                .map(|entry| entry.duration_hours())
+                .sum::<f64>();
 
-            println!(
-                "{} {} [{}] {:.2} hours",
-                entry.id, entry.title, entry.project, duration
-            );
+            println!("\n{} [{:.2} hours]", project, project_total);
+
+            for entry in &project_entries {
+                println!(
+                    "    {} {} {:.2} hours",
+                    entry.id,
+                    entry.title,
+                    entry.duration_hours()
+                );
+            }
+
+            total += project_total;
         }
 
-        println!("Total: {:.2} hours", total);
+        println!("\nTotal: {:.2} hours", total);
     }
 }
