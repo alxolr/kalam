@@ -6,11 +6,11 @@ enum Cli {
     Start(start::Cmd),
     Stop(stop::Cmd),
     Report(report::Cmd),
-    Active,
+    Status,
     Path,
 }
 
-mod active;
+mod status;
 mod entry;
 mod list;
 mod start;
@@ -47,8 +47,8 @@ fn do_main() -> Result<(), Box<dyn std::error::Error>> {
         Cli::Path => {
             println!("{}", storage.storage_path().display());
         },
-        Cli::Active => {
-            active::Cmd.run(&storage);
+        Cli::Status => {
+            status::Cmd.run(&storage);
         },
         
     }
