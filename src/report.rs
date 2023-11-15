@@ -6,8 +6,11 @@ use crate::{entry::Action, storage::Storage};
 
 #[derive(StructOpt, Debug)]
 pub struct Cmd {
-    #[structopt(short, long, help = "The range to report on [today, week, month]")]
+    #[structopt(short, long, help = "The range to report on [today, week, all]")]
     pub range: String,
+
+    #[structopt(short, long, help = "The project to report on")]
+    pub project: Option<String>,
 }
 
 impl Cmd {
@@ -30,6 +33,15 @@ impl Cmd {
                     .collect()
             }
             _ => entries,
+        };
+
+        let entries: Vec<crate::entry::Entry> = if self.project.is_some() {
+            entries
+                .into_iter()
+                .filter(|entry| entry.project == self.project.clone().unwrap())
+                .collect()
+        } else {
+            entries
         };
 
         let projects = entries
