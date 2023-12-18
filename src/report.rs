@@ -65,11 +65,14 @@ impl Cmd {
             println!("\n{} [{:.2} hours]", project, project_total);
 
             for entry in &project_entries {
+                let date = chrono::DateTime::parse_from_rfc3339(&entry.created_at).unwrap();
+
                 println!(
-                    "    {} {} {:.2} hours",
+                    "{:>14.8} # {:<40} ({:<15}) {:>5} hours",
                     entry.id,
                     entry.title,
-                    entry.duration_hours()
+                    date.format("%d-%m-%Y %H:%M"),
+                    format!("+{:.2}", entry.duration_hours())
                 );
             }
 
